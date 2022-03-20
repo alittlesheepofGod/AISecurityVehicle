@@ -1,13 +1,15 @@
 import sys
 from matplotlib import pyplot
-from keras.datasets import cifar10
-from keras.utils import to_categorical
-from keras.models import Sequential
-from keras.layers import Conv2D
-from keras.layers import MaxPooling2D
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.optimizers import SGD
+import tensorflow as tf
+tf.config.list_physical_devices('GPU')
+from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import MaxPooling2D
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.optimizers import SGD
  
 # load train and test dataset
 def load_dataset():
@@ -32,7 +34,15 @@ def prep_pixels(train, test):
 # define cnn model
 def define_model():
 	model = Sequential()
-	# ...
+	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
+	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(MaxPooling2D((2, 2)))
+	model.add(Flatten())
+	model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+	model.add(Dense(10, activation='softmax'))
+	# compile model
+	opt = SGD(lr=0.001, momentum=0.9)
+	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 	return model
  
 # plot diagnostic learning curves
@@ -61,9 +71,9 @@ def run_test_harness():
 	# define model
 	model = define_model()
 	# fit model
-	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_data=(testX, testY), verbose=0)
+	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_data=(testX, testY), verbose=2)
 	# evaluate model
-	_, acc = model.evaluate(testX, testY, verbose=0)
+	_, acc = model.evaluate(testX, testY, verbose=2)
 	print('> %.3f' % (acc * 100.0))
 	# learning curves
 	summarize_diagnostics(history)
