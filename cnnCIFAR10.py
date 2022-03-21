@@ -13,7 +13,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
- 
+
 # load train and test dataset
 def load_dataset():
 	# load dataset
@@ -79,8 +79,13 @@ def run_test_harness():
 	trainX, testX = prep_pixels(trainX, testX)
 	# define model
 	model = define_model()
+	# create data generator
+	datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1, horizontal_flip=True)
+	# prepare iterator
+	it_train = datagen.flow(trainX, trainY, batch_size=64)
 	# fit model
-	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_data=(testX, testY), verbose=2)
+	steps = int(trainX.shape[0] / 64)
+	history = model.fit_generator(it_train, steps_per_epoch=steps, epochs=100, validation_data=(testX, testY), verbose=0)
 	# evaluate model
 	_, acc = model.evaluate(testX, testY, verbose=0)
 	print('> %.3f' % (acc * 100.0))
