@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import sys
 from matplotlib import pyplot
 import tensorflow as tf
@@ -73,7 +75,7 @@ def run_test_harness():
 	# fit model
 	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_data=(testX, testY), verbose=2)
 	# evaluate model
-	_, acc = model.evaluate(testX, testY, verbose=2)
+	_, acc = model.evaluate(testX, testY, verbose=0)
 	print('> %.3f' % (acc * 100.0))
 	# learning curves
 	summarize_diagnostics(history)
