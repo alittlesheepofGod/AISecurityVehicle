@@ -85,9 +85,9 @@ def run_test_harness():
 	it_train = datagen.flow(trainX, trainY, batch_size=64)
 	# fit model
 	steps = int(trainX.shape[0] / 64)
-	history = model.fit_generator(it_train, steps_per_epoch=steps, epochs=100, validation_data=(testX, testY), verbose=0)
+	history = model.fit_generator(it_train, steps_per_epoch=steps, epochs=100, validation_data=(testX, testY), verbose=2)
 	# evaluate model
-	_, acc = model.evaluate(testX, testY, verbose=0)
+	_, acc = model.evaluate(testX, testY, verbose=2)
 	print('> %.3f' % (acc * 100.0))
 	# learning curves
 	summarize_diagnostics(history)
