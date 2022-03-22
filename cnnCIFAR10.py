@@ -12,7 +12,10 @@ from tensorflow.keras.layers import MaxPooling2D
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.optimizers import SGD
- 
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import BatchNormalization
+
 # load train and test dataset
 def load_dataset():
 	# load dataset
@@ -36,15 +39,32 @@ def prep_pixels(train, test):
 # define cnn model
 def define_model():
 	model = Sequential()
-	# model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
-	# model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-	# model.add(MaxPooling2D((2, 2)))
-	# model.add(Flatten())
-	# model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
-	# model.add(Dense(10, activation='softmax'))
-	# # compile model
-	# opt = SGD(lr=0.001, momentum=0.9)
-	# model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
+	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
+	model.add(BatchNormalization())
+	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(BatchNormalization())
+	model.add(MaxPooling2D((2, 2)))
+	model.add(Dropout(0.2))
+	model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(BatchNormalization())
+	model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(BatchNormalization())
+	model.add(MaxPooling2D((2, 2)))
+	model.add(Dropout(0.3))
+	model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(BatchNormalization())
+	model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(BatchNormalization())
+	model.add(MaxPooling2D((2, 2)))
+	model.add(Dropout(0.4))
+	model.add(Flatten())
+	model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+	model.add(BatchNormalization())
+	model.add(Dropout(0.5))
+	model.add(Dense(10, activation='softmax'))
+	# compile model
+	opt = SGD(lr=0.001, momentum=0.9)
+	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 	return model
  
 # plot diagnostic learning curves
@@ -72,8 +92,13 @@ def run_test_harness():
 	trainX, testX = prep_pixels(trainX, testX)
 	# define model
 	model = define_model()
+	# create data generator
+	datagen = ImageDataGenerator(width_shift_range=0.1, height_shift_range=0.1, horizontal_flip=True)
+	# prepare iterator
+	it_train = datagen.flow(trainX, trainY, batch_size=64)
 	# fit model
-	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_data=(testX, testY), verbose=2)
+	steps = int(trainX.shape[0] / 64)
+	history = model.fit_generator(it_train, steps_per_epoch=steps, epochs=400, validation_data=(testX, testY), verbose=2)
 	# evaluate model
 	_, acc = model.evaluate(testX, testY, verbose=0)
 	print('> %.3f' % (acc * 100.0))
