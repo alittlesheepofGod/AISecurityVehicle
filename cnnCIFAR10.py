@@ -36,33 +36,22 @@ def prep_pixels(train, test):
 # define cnn model
 def define_model():
 	model = Sequential()
-	# model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
-	# model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
-	# model.add(MaxPooling2D((2, 2)))
-	# model.add(Flatten())
-	# model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
-	# model.add(Dense(10, activation='softmax'))
-	# # compile model
-	# opt = SGD(lr=0.001, momentum=0.9)
-	# model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
+	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
+	model.add(Conv2D(32, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(MaxPooling2D((2, 2)))
+	model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(Conv2D(64, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(MaxPooling2D((2, 2)))
+	model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+	model.add(MaxPooling2D((2, 2)))
+	model.add(Flatten())
+	model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
+	model.add(Dense(10, activation='softmax'))
+	# compile model
+	opt = SGD(lr=0.001, momentum=0.9)
+	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 	return model
- 
-# plot diagnostic learning curves
-def summarize_diagnostics(history):
-	# plot loss
-	pyplot.subplot(211)
-	pyplot.title('Cross Entropy Loss')
-	pyplot.plot(history.history['loss'], color='blue', label='train')
-	pyplot.plot(history.history['val_loss'], color='orange', label='test')
-	# plot accuracy
-	pyplot.subplot(212)
-	pyplot.title('Classification Accuracy')
-	pyplot.plot(history.history['accuracy'], color='blue', label='train')
-	pyplot.plot(history.history['val_accuracy'], color='orange', label='test')
-	# save plot to file
-	filename = sys.argv[0].split('/')[-1]
-	pyplot.savefig(filename + '_plot.png')
-	pyplot.close()
  
 # run the test harness for evaluating a model
 def run_test_harness():
@@ -73,12 +62,12 @@ def run_test_harness():
 	# define model
 	model = define_model()
 	# fit model
-	history = model.fit(trainX, trainY, epochs=100, batch_size=64, validation_data=(testX, testY), verbose=2)
+	history = model.fit(trainX, trainY, epochs=100, batch_size=64, verbose=2)
 	# evaluate model
 	_, acc = model.evaluate(testX, testY, verbose=0)
 	print('> %.3f' % (acc * 100.0))
-	# learning curves
-	summarize_diagnostics(history)
+	# save model
+	model.save('final_model.h5')
  
 # entry point, run the test harness
 run_test_harness()
