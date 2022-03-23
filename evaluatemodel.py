@@ -35,6 +35,6 @@ def run_test_harness():
 	# evaluate model on test dataset
 	_, acc = model.evaluate(testX, testY, verbose=2)
 	print('> %.3f' % (acc * 100.0))
- 
+
 # entry point, run the test harness
 run_test_harness()
