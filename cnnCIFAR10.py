@@ -48,6 +48,7 @@ def define_model():
 	model.add(Flatten())
 	model.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
 	model.add(Dense(10, activation='softmax'))
+	model.summary()
 	# compile model
 	opt = SGD(lr=0.001, momentum=0.9)
 	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
